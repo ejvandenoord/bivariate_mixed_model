@@ -15,7 +15,7 @@ data     = read.csv(paste0(work_dir,"long_trauma.csv"))
 
 covs  = c("tanner_stage","Sex","obs_age2.1","obs_age2.2", "race","CD03","CD14","CD15","min_thres","max_thres","peak4","peak5","PeakSQRT","AUC","skewness")
 
-n_permutation = 10
+n_permutation = 10000
 
 # begin
 library(nlme)
@@ -36,7 +36,7 @@ data$response[sel]  = model$residuals
 model               = lm(data$response[!sel] ~ as.matrix(data[!sel,covs]))
 data$response[!sel] = model$residuals
 
-### observed results
+# observed results
 obs_results         = run_lme(data,correlate,sel)
 names(obs_results)  = colnames_results
 obs_results  
@@ -45,7 +45,6 @@ obs_results
 per_results           = matrix(NA,n_permutation,6)
 colnames(per_results) = colnames_results 
 for (i in 1:n_permutation) { # i=1
-  
   perm_data       = permute_response_stratify(data,sample_records,records) 
   per_results[i,] = run_lme(perm_data,correlate,sel)
   
