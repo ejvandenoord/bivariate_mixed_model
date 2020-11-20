@@ -15,13 +15,19 @@ data     = read.csv(paste0(work_dir,"long_trauma.csv"))
 
 covs  = c("tanner_stage","Sex","obs_age2.1","obs_age2.2", "race","CD03","CD14","CD15","min_thres","max_thres","peak4","peak5","PeakSQRT","AUC","skewness")
 
-n_permutation = 10000
+n_permutation = 10
 
 # begin
 library(nlme)
 set.seed(1)
 source(paste0(work_dir,"functions.R"))
 colnames_results = c("subj_epi","subj_correlate","wave_epi","wave_correlate","subj_contribution","wave_contribution") 
+
+
+# prepare data for permutations
+data           = prep_permute_response_stratify(data)
+sample_records = unique( data[data$rownr==1,c("subject","nrecords")] )
+records        = unique(data$nrecords)
 
 # residualize response to speed up permutations (has little impact on results) 
 sel = data$epi == 1
@@ -34,13 +40,6 @@ data$response[!sel] = model$residuals
 obs_results         = run_lme(data,correlate,sel)
 names(obs_results)  = colnames_results
 obs_results  
-
-
-### Permutations that preserve subject-level variance 
-# prepare data for permutations
-data           = prep_permute_response_stratify(data)
-sample_records = unique( data[data$rownr==1,c("subject","nrecords")] )
-records        = unique(data$nrecords)
 
 # Perform permutations that preserve subject-level variance 
 per_results           = matrix(NA,n_permutation,6)
