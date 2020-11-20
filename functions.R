@@ -1,4 +1,4 @@
-prep_permute_response_stratify = function(data) {
+prep_permute_response_stratify = function(data,max_records) {
   
   # for each subject/wave both epi and correlate needs to be present 
   data = data[ order(data[,"subject"],data[,"wave"],data[,"epi"]) ,]
@@ -8,7 +8,7 @@ prep_permute_response_stratify = function(data) {
   ind  = match(data[,"subject"],temp$values)
   data = cbind(data,gsmsid_records[ind])
   colnames(data)[ncol(data)] = 'nrecords'
-  data = data[data$nrecords<=3,]
+  data = data[data$nrecords<=max_records,]
   
   temp        = rle( as.vector(data[,"subject"]) )
   data$rownr  = unlist(lapply(temp$lengths, function(x) seq(1,x)))
